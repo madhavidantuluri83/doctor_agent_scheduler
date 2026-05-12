@@ -127,3 +127,23 @@ def extract_datetime(text):
         )
 
     return parsed_date
+
+import re
+
+
+import re
+
+
+def has_explicit_time(text):
+
+    print(f"\n[Checking Time In]: {text}")
+
+    text = text.lower().strip()
+
+    pattern = r'\d{1,2}(:\d{2})?\s?(am|pm)'
+
+    match = re.search(pattern, text)
+
+    print(f"[Time Match]: {match}")
+
+    return match is not None

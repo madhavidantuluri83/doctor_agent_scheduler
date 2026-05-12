@@ -1,7 +1,20 @@
-from agents.intent_agent import detect_intent
-from agents.booking_agent import book_appointment
-from agents.availability_agent import check_doctor_availability
+from graph.doctor_graph import doctor_graph
 
+
+# -------------------------------------------------
+# CONVERSATION MEMORY
+# -------------------------------------------------
+
+conversation_state = {
+
+    "pending_action": "",
+    "partial_datetime": ""
+}
+
+
+# -------------------------------------------------
+# CHATBOT
+# -------------------------------------------------
 
 def chatbot():
 
@@ -11,44 +24,75 @@ def chatbot():
 
         user_input = input("You: ")
 
-        # -------------------------------------
+        # -----------------------------------------
         # EXIT
-        # -------------------------------------
+        # -----------------------------------------
 
         if user_input.lower() in ["exit", "quit"]:
+
             print("\nGoodbye!")
             break
 
-        # -------------------------------------
-        # DETECT INTENT
-        # -------------------------------------
+        # -----------------------------------------
+        # FOLLOW-UP HANDLING
+        # -----------------------------------------
 
-        intent = detect_intent(user_input)
+        if conversation_state["pending_action"] == "booking":
 
-        # -------------------------------------
-        # ROUTE TO AGENT
-        # -------------------------------------
+            print("\n[Using Previous Context]\n")
 
-        if intent == "booking":
+            original_request = conversation_state[
+                "partial_datetime"
+            ]
 
-            result = book_appointment(user_input)
-
-        elif intent == "availability":
-
-            result = check_doctor_availability(user_input)
-
-        else:
-
-            result = (
-                "Sorry, I could not understand your request."
+            # Merge ONLY temporarily
+            merged_input = (
+                f"{original_request} {user_input}"
             )
 
-        # -------------------------------------
+            print(f"[Merged Input]: {merged_input}")
+
+            user_input = merged_input
+
+        # -----------------------------------------
+        # GRAPH INVOCATION
+        # -----------------------------------------
+
+        result = doctor_graph.invoke({
+
+            "user_input": user_input,
+
+            "pending_action":
+                conversation_state["pending_action"],
+
+            "partial_datetime":
+                conversation_state["partial_datetime"]
+        })
+
+        # -----------------------------------------
+        # STORE / CLEAR MEMORY
+        # -----------------------------------------
+
+        conversation_state["pending_action"] = result.get(
+            "pending_action",
+            ""
+        )
+
+        conversation_state["partial_datetime"] = result.get(
+            "partial_datetime",
+            ""
+        )
+
+        # -----------------------------------------
         # RESPONSE
-        # -------------------------------------
+        # -----------------------------------------
 
-        print(f"\nBot: {result}\n")
+        print(f"\nBot: {result['response']}\n")
 
+
+# -------------------------------------------------
+# ENTRY POINT
+# -------------------------------------------------
 
 if __name__ == "__main__":
 
