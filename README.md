@@ -310,7 +310,31 @@ This project demonstrates practical understanding of:
 - stateful AI systems
 
 ---
+# LangGraph Workflow
 
+```mermaid
+graph TD
+
+    A[User Input]
+
+    B[Intent Node]
+
+    C[Booking Agent]
+
+    D[Availability Agent]
+
+    E[END]
+
+    A --> B
+
+    B -->|booking| C
+
+    B -->|availability| D
+
+    C --> E
+
+    D --> E
+```
 # License
 
 MIT License
